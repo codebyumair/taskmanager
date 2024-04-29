@@ -1,8 +1,8 @@
 const express = require("express");
 const {
   getTask,
-  setTask,
-  updateTask,
+  createTask,
+
   deleteTask,
   requestStatusChange,
   approvedStatusChange,
@@ -12,7 +12,7 @@ const { authenticate } = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.route("/").get(authenticate, getTask);
-router.route("/create").post(authenticate, setTask);
+router.route("/create").post(authenticate, createTask);
 
 router.post(
   "/request-status-change/:taskId",
@@ -25,9 +25,6 @@ router.put(
   approvedStatusChange
 );
 
-router
-  .route("/:id")
-  .put(authenticate, updateTask)
-  .delete(authenticate, deleteTask);
+router.route("/:id").delete(authenticate, deleteTask);
 
 module.exports = router;

@@ -4,48 +4,27 @@ import { useContext, useEffect, useState } from "react";
 import TableData from "./TableData";
 import DropDown from "./DropDown";
 import Badge from "./Badge";
+import { useNavigate } from "react-router-dom";
 
 const PendingTask = ({ pendingTask, handleApprove, handleReject }) => {
+  const navigate = useNavigate();
   const context = useContext(UserContext);
-  const { isAdmin } = context;
-  console.log(pendingTask);
-  //   const [newFormData, setNewFormData] = useState({
-  //     newStatus: pendingTask.statusChangeRequest.newStatus,
-  //   });
-
+  const { isAdmin, getUserNameByID } = context;
   const [assignedToName, setAssignedToName] = useState("");
-  const [newStatus, setNewStatus] = useState("");
 
-  const host = "http://localhost:5000";
   useEffect(() => {
-    const getUserNameById = async () => {
-      try {
-        const response = await fetch(`${host}/api/users/all`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            token: localStorage.getItem("token"),
-          },
-        });
-        const users = await response.json();
-        const assignedUser = users.find(
-          (user) => user._id === pendingTask.assignedTo
-        );
-        if (assignedUser) {
-          setAssignedToName(assignedUser.name);
-        }
-      } catch (error) {
-        console.error("Error fetching user name:", error);
+    const fetchAssignedUserName = async () => {
+      if (isAdmin) {
+        const userName = await getUserNameByID(pendingTask.assignedTo);
+        setAssignedToName(userName);
       }
     };
-
-    if (isAdmin) {
-      getUserNameById();
-    }
-  }, [isAdmin, pendingTask.assignedTo]);
+    fetchAssignedUserName();
+  }, [isAdmin, pendingTask.assignedTo, getUserNameByID]);
 
   const handleApproveClick = () => {
-    handleApprove(pendingTask._id, true, newStatus);
+    handleApprove(pendingTask._id, true);
+    navigate("/tasks/pending");
   };
 
   const handleRejectClick = () => {
@@ -57,7 +36,7 @@ const PendingTask = ({ pendingTask, handleApprove, handleReject }) => {
       <tr>
         <TableData value={pendingTask.taskName} />
         <TableData value={assignedToName} />
-        <TableData value={pendingTask.status} />
+        <TableData value={pendingTask.status.toUpperCase()} />
 
         <TableData value={pendingTask.statusChangeRequest.newStatus} />
         <TableData

@@ -1,13 +1,102 @@
 import { createContext, useState } from "react";
 import { toast } from "react-toastify";
+import { HOST } from "./helper";
 export const UserContext = createContext();
 
 const Provider = ({ children }) => {
-  const host = "http://localhost:5000";
+  const host = HOST;
   const tasksInitial = [];
-  const userInitial = [];
+  const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState(tasksInitial);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const signupUser = async ({ name, email, password }) => {
+    try {
+      const response = await fetch(`${host}/api/users/signup`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const json = await response.json();
+
+      if (json.success) {
+        localStorage.setItem("token", json.token);
+
+        setIsAdmin(json.isAdmin);
+        toast.success("Account created successfully");
+      } else {
+        toast.error(json.message);
+      }
+      return json;
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const loginUser = async ({ email, password }) => {
+    try {
+      const response = await fetch(`${host}/api/users/login`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const json = await response.json();
+
+      if (json.success) {
+        localStorage.setItem("token", json.token);
+
+        setIsAdmin(json.isAdmin);
+        toast.success("Logged in successfully");
+      } else {
+        toast.error(json.message);
+      }
+
+      return json;
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const getAllUsers = async (id) => {
+    try {
+      const response = await fetch(`${host}/api/users/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token"),
+        },
+      });
+      const users = await response.json();
+      setUsers(users);
+    } catch (error) {
+      console.error("Error fetching user name:", error);
+      return "";
+    }
+  };
+
+  const getUserNameByID = async (id) => {
+    try {
+      const response = await fetch(`${host}/api/users/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token"),
+        },
+      });
+      const users = await response.json();
+      const assignedUser = users.find((user) => user._id === id);
+      return assignedUser ? assignedUser.name : "";
+    } catch (error) {
+      console.error("Error fetching user name:", error);
+      return "";
+    }
+  };
 
   const getTasks = async () => {
     try {
@@ -89,7 +178,7 @@ const Provider = ({ children }) => {
     }
   };
 
-  const approvedStatusChange = async (id, approved, newStatus) => {
+  const approvedStatusChange = async (id, approved) => {
     try {
       const response = await fetch(
         `${host}/api/tasks/approve-status-change/${id}`,
@@ -99,7 +188,7 @@ const Provider = ({ children }) => {
             "Content-Type": "application/json",
             token: localStorage.getItem("token"),
           },
-          body: JSON.stringify({ approved, newStatus }),
+          body: JSON.stringify({ approved }),
         }
       );
 
@@ -113,6 +202,11 @@ const Provider = ({ children }) => {
   const value = {
     tasks,
     isAdmin,
+    users,
+    signupUser,
+    loginUser,
+    getAllUsers,
+    getUserNameByID,
     getTasks,
     createTask,
     deleteTask,

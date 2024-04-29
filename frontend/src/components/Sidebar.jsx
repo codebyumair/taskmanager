@@ -21,7 +21,7 @@ const Sidebar = () => {
 
   return (
     <div className=" overflow-hidden relative h-screen bg-white w-64 border-r-[1px]">
-      <div className="py-5 px-4 flex gap-4 items-center border-b-[1px] bg-[#6b45d9] text-white">
+      <div className="py-5 px-4 flex gap-4 items-center border-b-[1px] bg-[#007dfe] text-white">
         <MdTaskAlt className="text-3xl" />
         <h1 className="font-bold font-sans text-2xl">TaskMan</h1>
       </div>
@@ -29,7 +29,7 @@ const Sidebar = () => {
         <SidebarItem
           icon={<MdOutlineArticle />}
           title="All tasks"
-          bgColor="bg-[#6b45d9]"
+          bgColor="bg-[#007dfe]"
         />
       </Link>
       {isAdmin && (

@@ -4,10 +4,11 @@ import { useContext, useEffect, useState } from "react";
 import TableData from "./TableData";
 import DropDown from "./DropDown";
 import Badge from "./Badge";
+import { statusList } from "../context/users/helper";
 
 const Task = ({ task }) => {
   const context = useContext(UserContext);
-  const { deleteTask, requestForApproval, isAdmin } = context;
+  const { deleteTask, requestForApproval, isAdmin, getUserNameByID } = context;
   const { taskName, assignedTo, status } = task;
 
   const [newFormData, setNewFormData] = useState({
@@ -15,34 +16,18 @@ const Task = ({ task }) => {
   });
 
   const { newStatus } = newFormData;
-  const statusList = ["COMPLETED", "IN PROGRESS", "INITIATED", "INCOMPLETE"];
 
   const [assignedToName, setAssignedToName] = useState("");
-  const host = "http://localhost:5000";
+
   useEffect(() => {
-    const getUserNameById = async () => {
-      try {
-        const response = await fetch(`${host}/api/users/all`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            token: localStorage.getItem("token"),
-          },
-        });
-        const users = await response.json();
-        const assignedUser = users.find((user) => user._id === assignedTo);
-        if (assignedUser) {
-          setAssignedToName(assignedUser.name);
-        }
-      } catch (error) {
-        console.error("Error fetching user name:", error);
+    const fetchAssignedUserName = async () => {
+      if (isAdmin) {
+        const userName = await getUserNameByID(assignedTo);
+        setAssignedToName(userName);
       }
     };
-
-    if (isAdmin) {
-      getUserNameById();
-    }
-  }, [isAdmin, assignedTo]);
+    fetchAssignedUserName();
+  }, [isAdmin, getUserNameByID]);
 
   return (
     <tbody className="divide-y divide-gray-200">

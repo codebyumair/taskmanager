@@ -5,6 +5,7 @@ import Task from "../components/Task";
 import AddTask from "../components/AddTask";
 import TableHeading from "../components/TableHeading";
 import { toast } from "react-toastify";
+import EmptyState from "../components/EmptyState";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -31,33 +33,41 @@ const Dashboard = () => {
       <header className="w-full p-5 bg-white flex justify-between ">
         <h1 className="text-2xl font-bold">Dashboard</h1>
       </header>
+
       <div className="p-5 min-w-full inline-block align-middle">
         {isAdmin && <AddTask />}
-        <div className="overflow-hidden bg-white rounded-3xl">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <TableHeading value="Task" />
-                {isAdmin && (
-                  <>
-                    <TableHeading value="Assignee" />
-                    <TableHeading value="Status" />
-                    <TableHeading value="Action" />
-                  </>
-                )}
-                {!isAdmin && (
-                  <>
-                    <TableHeading value="Status" />
-                    <TableHeading value="Action" />
-                  </>
-                )}
-              </tr>
-            </thead>
-            {tasks.map((task, index) => {
-              return <Task key={index} task={task} />;
-            })}
-          </table>
-        </div>
+
+        {tasks.length === 0 ? (
+          <div className=" mt-14 w-full flex justify-center">
+            <EmptyState />
+          </div>
+        ) : (
+          <div className="overflow-hidden bg-white rounded-3xl">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <TableHeading value="Task" />
+                  {isAdmin && (
+                    <>
+                      <TableHeading value="Assignee" />
+                      <TableHeading value="Status" />
+                      <TableHeading value="Action" />
+                    </>
+                  )}
+                  {!isAdmin && (
+                    <>
+                      <TableHeading value="Status" />
+                      <TableHeading value="Action" />
+                    </>
+                  )}
+                </tr>
+              </thead>
+              {tasks.map((task, index) => {
+                return <Task key={index} task={task} />;
+              })}
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

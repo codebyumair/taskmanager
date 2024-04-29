@@ -5,27 +5,19 @@ import { UserContext } from "../context/users/UserContext";
 import FormField from "./FormField";
 import UserDropdown from "./UserDropdown";
 import DropDown from "./DropDown";
+import { statusList } from "../context/users/helper";
 
 const AddTask = () => {
-  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
   const context = useContext(UserContext);
-  const { createTask, isAdmin } = context;
+  const { createTask, isAdmin, getAllUsers, users } = context;
   const [formData, setFormData] = useState({
     taskName: "",
     assignee: "",
     status: "",
   });
 
-  const statusList = ["COMPLETE", "IN PROGRESS", "INITIATED", "INCOMPLETE"];
-
   const { taskName, assignee, status } = formData;
-  // const onChange = (e) => {
-  //   setFormData((prevState) => ({
-  //     ...prevState,
-  //     [e.target.name]: e.target.value,
-  //   }));
-  // };
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -56,19 +48,7 @@ const AddTask = () => {
   const host = "http://localhost:5000";
   useEffect(() => {
     const getUserNameById = async () => {
-      try {
-        const response = await fetch(`${host}/api/users/all`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            token: localStorage.getItem("token"),
-          },
-        });
-        const usersList = await response.json();
-        setUsers(usersList);
-      } catch (error) {
-        console.error("Error fetching user name:", error);
-      }
+      const response = await getAllUsers();
     };
     if (isAdmin) {
       getUserNameById();
@@ -81,7 +61,7 @@ const AddTask = () => {
       <form className="flex items-center p-4 gap-3">
         <div>
           <FormField
-            title="Task"
+            title="TASK"
             inputValue={taskName}
             updateValue={(value) =>
               setFormData((prevState) => ({ ...prevState, taskName: value }))
@@ -126,7 +106,7 @@ const AddTask = () => {
         <div>
           <button
             type="submit"
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-6"
+            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#007dfe] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mt-6"
             onClick={handleClick}
           >
             Create
